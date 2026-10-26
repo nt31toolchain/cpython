@@ -552,6 +552,13 @@ class EnvBuilder:
                 if skip_file(f):
                     continue
                 srcfile = os.path.join(root, f)
+                encoding = 'utf-8'
+                if (os.name == 'nt' and sys.getwindowsversion()[0] < 4
+                        and os.path.isfile(os.path.join(path, 'nt3', f))):
+                    # The command processor of Windows NT 3.x has no code
+                    # page 65001 and none of the commands of later versions.
+                    srcfile = os.path.join(path, 'nt3', f)
+                    encoding = 'oem'
                 suffix = root[plen:].split(os.sep)[2:]
                 if not suffix:
                     dstdir = binpath
@@ -569,7 +576,7 @@ class EnvBuilder:
                     context.script_path = srcfile
                     new_data = (
                         self.replace_variables(data.decode('utf-8'), context)
-                            .encode('utf-8')
+                            .encode(encoding)
                     )
                 except UnicodeError as e:
                     logger.warning('unable to copy script %r, '

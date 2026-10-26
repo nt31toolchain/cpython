@@ -706,6 +706,12 @@ def main():
     sethelper()
     if not sys.flags.isolated:
         enablerlcompleter()
+    if os.name == "nt":
+        # Windows NT 3.x port: the launchers of pip (Lib/nt31_launchers.py).
+        try:
+            import nt31_launchers
+        except ImportError:
+            pass
     execsitecustomize()
     if ENABLE_USER_SITE:
         execusercustomize()

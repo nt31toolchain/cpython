@@ -2915,8 +2915,13 @@ _Py_GetLocaleconvNumeric(struct lconv *lc,
 
 #define GET_LOCALE_STRING(ATTR) PyUnicode_DecodeLocale(lc->ATTR, NULL)
 #else /* MS_WINDOWS */
+#ifdef MS_WINDOWS_NT3
+/* The C runtime of Windows NT 3.x has no _W_* fields */
+#define GET_LOCALE_STRING(ATTR) PyUnicode_DecodeLocale(lc->ATTR, NULL)
+#else
 /* Use _W_* fields of Windows strcut lconv */
 #define GET_LOCALE_STRING(ATTR) PyUnicode_FromWideChar(lc->_W_ ## ATTR, -1)
+#endif
 #endif /* MS_WINDOWS */
 
     int res = -1;

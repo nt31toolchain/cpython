@@ -899,5 +899,8 @@ class WindowsProactorEventLoopPolicy(events.BaseDefaultEventLoopPolicy):
     _loop_factory = ProactorEventLoop
 
 
-DefaultEventLoopPolicy = WindowsProactorEventLoopPolicy
-EventLoop = ProactorEventLoop
+# Windows NT 3.x port: the proactor needs Windows Sockets 2 and I/O
+# completion ports, which the system does not have; the selector event loop
+# works with select().
+DefaultEventLoopPolicy = WindowsSelectorEventLoopPolicy
+EventLoop = SelectorEventLoop

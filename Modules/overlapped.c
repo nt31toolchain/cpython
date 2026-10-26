@@ -196,6 +196,14 @@ initialize_function_pointers(void)
         return -1;
     }
 
+#ifdef MS_WINDOWS_NT3
+    /* Windows NT 3.x has only some of the extension functions: a missing
+       one stays NULL, and its method fails (MISSING_EXTENSION). */
+    (void)GET_WSA_POINTER(s, AcceptEx);
+    (void)GET_WSA_POINTER(s, ConnectEx);
+    (void)GET_WSA_POINTER(s, DisconnectEx);
+    (void)GET_WSA_POINTER(s, TransmitFile);
+#else
     if (!GET_WSA_POINTER(s, AcceptEx) ||
         !GET_WSA_POINTER(s, ConnectEx) ||
         !GET_WSA_POINTER(s, DisconnectEx) ||
@@ -205,10 +213,19 @@ initialize_function_pointers(void)
         SetFromWindowsErr(WSAGetLastError());
         return -1;
     }
+#endif
 
     closesocket(s);
     return 0;
 }
+
+#ifdef MS_WINDOWS_NT3
+#define MISSING_EXTENSION(function) \
+    if (function == NULL) \
+        return SetFromWindowsErr(ERROR_NOT_SUPPORTED)
+#else
+#define MISSING_EXTENSION(function)
+#endif
 
 /*
  * Completion port stuff
@@ -1345,6 +1362,7 @@ _overlapped_Overlapped_AcceptEx_impl(OverlappedObject *self,
     self->handle = ListenSocket;
     self->allocated_buffer = buf;
 
+    MISSING_EXTENSION(Py_AcceptEx);
     Py_BEGIN_ALLOW_THREADS
     ret = Py_AcceptEx((SOCKET)ListenSocket, (SOCKET)AcceptSocket,
                       PyBytes_AS_STRING(buf), 0, size, size, &BytesReceived,
@@ -1461,6 +1479,7 @@ _overlapped_Overlapped_ConnectEx_impl(OverlappedObject *self,
     self->type = TYPE_CONNECT;
     self->handle = ConnectSocket;
 
+    MISSING_EXTENSION(Py_ConnectEx);
     Py_BEGIN_ALLOW_THREADS
     ret = Py_ConnectEx((SOCKET)ConnectSocket, Address, Length,
                        NULL, 0, NULL, &self->overlapped);
@@ -1502,6 +1521,7 @@ _overlapped_Overlapped_DisconnectEx_impl(OverlappedObject *self,
     self->type = TYPE_DISCONNECT;
     self->handle = Socket;
 
+    MISSING_EXTENSION(Py_DisconnectEx);
     Py_BEGIN_ALLOW_THREADS
     ret = Py_DisconnectEx((SOCKET)Socket, &self->overlapped, flags, 0);
     Py_END_ALLOW_THREADS
@@ -1553,6 +1573,7 @@ _overlapped_Overlapped_TransmitFile_impl(OverlappedObject *self,
     self->overlapped.Offset = offset;
     self->overlapped.OffsetHigh = offset_high;
 
+    MISSING_EXTENSION(Py_TransmitFile);
     Py_BEGIN_ALLOW_THREADS
     ret = Py_TransmitFile((SOCKET)Socket, File, count_to_write,
                           count_per_send, &self->overlapped, NULL, flags);

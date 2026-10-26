@@ -377,7 +377,9 @@ corresponding Unix manual entries for more information on calls.");
 #elif defined( _MSC_VER)
   /* Microsoft compiler */
 #  if defined(MS_WINDOWS_DESKTOP) || defined(MS_WINDOWS_APP) || defined(MS_WINDOWS_SYSTEM)
+#    ifndef MS_WINDOWS_NT3
 #    define HAVE_GETPPID    1
+#    endif
 #  endif /* MS_WINDOWS_DESKTOP | MS_WINDOWS_APP | MS_WINDOWS_SYSTEM */
 #  if defined(MS_WINDOWS_DESKTOP)
 #    define HAVE_GETLOGIN   1

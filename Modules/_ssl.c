@@ -33,7 +33,7 @@
 /* Include symbols from _socket module */
 #include "socketmodule.h"
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3)
 #  include <wincrypt.h>
 #endif
 
@@ -5888,7 +5888,7 @@ _ssl_nid2obj_impl(PyObject *module, int nid)
     return result;
 }
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(MS_WINDOWS_NT3)
 
 static PyObject*
 certEncodingType(DWORD encodingType)
@@ -6208,6 +6208,21 @@ _ssl_enum_crls_impl(PyObject *module, const char *store_name)
 }
 
 #endif /* _MSC_VER */
+
+#ifdef MS_WINDOWS_NT3
+/* Windows NT 3.x has no certificate stores */
+static PyObject *
+_ssl_enum_certificates_impl(PyObject *module, const char *store_name)
+{
+    return PyList_New(0);
+}
+
+static PyObject *
+_ssl_enum_crls_impl(PyObject *module, const char *store_name)
+{
+    return PyList_New(0);
+}
+#endif
 
 /* List of functions exported by this module. */
 static PyMethodDef PySSL_methods[] = {

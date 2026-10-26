@@ -66,7 +66,13 @@ struct SOCKADDR_BTH_REDEF {
  * any version information.
  * I use SIO_GET_MULTICAST_FILTER to detect a decent SDK.
  */
-# ifdef SIO_GET_MULTICAST_FILTER
+# ifdef MS_WINDOWS_NT3
+/* Windows Sockets 1.1 with the name resolution of the toolchain */
+#  define HAVE_ADDRINFO
+#  define HAVE_SOCKADDR_STORAGE
+#  define HAVE_GETADDRINFO
+#  define HAVE_GETNAMEINFO
+# elif defined(SIO_GET_MULTICAST_FILTER)
 #  include <mstcpip.h> /* for SIO_RCVALL */
 #  define HAVE_ADDRINFO
 #  define HAVE_SOCKADDR_STORAGE
@@ -81,10 +87,12 @@ typedef int socklen_t;
  * socket.h only defines AF_HYPERV if _WIN32_WINNT is at that level or higher
  * so for now it's just manually defined.
  */
+# ifndef MS_WINDOWS_NT3
 # ifndef AF_HYPERV
 #  define AF_HYPERV 34
 # endif
 # include <hvsocket.h>
+# endif
 #endif /* MS_WINDOWS */
 
 #ifdef HAVE_SYS_UN_H
@@ -273,8 +281,9 @@ typedef union sock_addr {
     struct sockaddr_in6 in6;
     struct sockaddr_storage storage;
 #endif
-#if defined(MS_WINDOWS)
+#if defined(MS_WINDOWS) && defined(AF_BTH)
     struct SOCKADDR_BTH_REDEF bt_rc;
+#elif defined(MS_WINDOWS)
 #elif defined(HAVE_BLUETOOTH_BLUETOOTH_H) // Linux
     struct sockaddr_l2 bt_l2;
     struct sockaddr_rc bt_rc;

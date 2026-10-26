@@ -281,6 +281,7 @@ shutdown(how) -- shut down traffic in one or both directions\n\
 /* Helpers needed for AF_HYPERV */
 # include <Rpc.h>
 
+#ifndef MS_WINDOWS_NT3
 /* Macros based on the IPPROTO enum, see: https://bugs.python.org/issue29515 */
 #define IPPROTO_ICMP IPPROTO_ICMP
 #define IPPROTO_IGMP IPPROTO_IGMP
@@ -401,6 +402,13 @@ remove_unusable_flags(PyObject *m)
     }
     return 0;
 }
+#else /* MS_WINDOWS_NT3 */
+static int
+remove_unusable_flags(PyObject *m)
+{
+    return 0;
+}
+#endif /* MS_WINDOWS_NT3 */
 
 #endif
 
@@ -511,7 +519,7 @@ remove_unusable_flags(PyObject *m)
 # endif
 #endif
 
-#ifdef MS_WINDOWS_DESKTOP
+#if defined(MS_WINDOWS_DESKTOP) && defined(AF_BTH)
 #define sockaddr_rc SOCKADDR_BTH_REDEF
 
 #define USE_BLUETOOTH 1
@@ -7007,7 +7015,7 @@ Set the default timeout in seconds (float) for new socket objects.\n\
 A value of None indicates that new socket objects have no timeout.\n\
 When the socket module is first imported, the default is None.");
 
-#if defined(HAVE_IF_NAMEINDEX) || defined(MS_WINDOWS)
+#if defined(HAVE_IF_NAMEINDEX) || (defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3))
 /* Python API for getting interface indices and names */
 
 static PyObject *
@@ -7297,7 +7305,7 @@ static PyMethodDef socket_methods[] = {
      METH_NOARGS, getdefaulttimeout_doc},
     {"setdefaulttimeout",       socket_setdefaulttimeout,
      METH_O, setdefaulttimeout_doc},
-#if defined(HAVE_IF_NAMEINDEX) || defined(MS_WINDOWS)
+#if defined(HAVE_IF_NAMEINDEX) || (defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3))
     {"if_nameindex", socket_if_nameindex,
      METH_NOARGS, if_nameindex_doc},
     _SOCKET_SOCKET_IF_NAMETOINDEX_METHODDEF
@@ -8389,7 +8397,7 @@ socket_exec(PyObject *m)
     ADD_INT_MACRO(m, IPPROTO_MAX);
 #endif
 
-#ifdef  MS_WINDOWS
+#if defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3)
     ADD_INT_MACRO(m, IPPROTO_ICLFXBM);
     ADD_INT_MACRO(m, IPPROTO_ST);
     ADD_INT_MACRO(m, IPPROTO_CBT);

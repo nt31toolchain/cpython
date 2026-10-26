@@ -3623,6 +3623,14 @@ _PySys_InitCore(PyThreadState *tstate, PyObject *sysdict)
     SET_SYS("dllhandle", PyLong_FromVoidPtr(PyWin_DLLhModule));
     SET_SYS_FROM_STRING("winver", PyWin_DLLVersionString);
 #endif
+#if defined(MS_WINDOWS_NT3) && !defined(MS_COREDLL)
+    /* a static build has no DLL, but site.py uses the version and ctypes
+       the handle */
+    SET_SYS("dllhandle", PyLong_FromVoidPtr(GetModuleHandleW(NULL)));
+    SET_SYS_FROM_STRING("winver",
+                        Py_STRINGIFY(PY_MAJOR_VERSION) "."
+                        Py_STRINGIFY(PY_MINOR_VERSION));
+#endif
 #ifdef ABIFLAGS
     SET_SYS_FROM_STRING("abiflags", ABIFLAGS);
 #endif
