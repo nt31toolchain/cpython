@@ -403,6 +403,8 @@ remove_unusable_flags(PyObject *m)
     return 0;
 }
 #else /* MS_WINDOWS_NT3 */
+#include <iphlpapi.h>
+
 static int
 remove_unusable_flags(PyObject *m)
 {
@@ -7015,7 +7017,7 @@ Set the default timeout in seconds (float) for new socket objects.\n\
 A value of None indicates that new socket objects have no timeout.\n\
 When the socket module is first imported, the default is None.");
 
-#if defined(HAVE_IF_NAMEINDEX) || (defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3))
+#if defined(HAVE_IF_NAMEINDEX) || defined(MS_WINDOWS)
 /* Python API for getting interface indices and names */
 
 static PyObject *
@@ -7305,7 +7307,7 @@ static PyMethodDef socket_methods[] = {
      METH_NOARGS, getdefaulttimeout_doc},
     {"setdefaulttimeout",       socket_setdefaulttimeout,
      METH_O, setdefaulttimeout_doc},
-#if defined(HAVE_IF_NAMEINDEX) || (defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3))
+#if defined(HAVE_IF_NAMEINDEX) || defined(MS_WINDOWS)
     {"if_nameindex", socket_if_nameindex,
      METH_NOARGS, if_nameindex_doc},
     _SOCKET_SOCKET_IF_NAMETOINDEX_METHODDEF

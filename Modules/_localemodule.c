@@ -231,9 +231,6 @@ locale_decode_monetary(PyObject *dict, struct lconv *lc)
     }
 
 #define GET_LOCALE_STRING(ATTR) PyUnicode_DecodeLocale(lc->ATTR, NULL)
-#elif defined(MS_WINDOWS_NT3)
-/* The C runtime of Windows NT 3.x has no _W_* fields */
-#define GET_LOCALE_STRING(ATTR) PyUnicode_DecodeLocale(lc->ATTR, NULL)
 #else  /* MS_WINDOWS */
 /* Use _W_* fields of Windows struct lconv */
 #define GET_LOCALE_STRING(ATTR) PyUnicode_FromWideChar(lc->_W_ ## ATTR, -1)
@@ -310,7 +307,7 @@ _locale_localeconv_impl(PyObject *module)
         Py_DECREF(obj); \
     } while (0)
 
-#if defined(MS_WINDOWS) && !defined(MS_WINDOWS_NT3)
+#ifdef MS_WINDOWS
 /* Use _W_* fields of Windows struct lconv */
 #define GET_LOCALE_STRING(ATTR) PyUnicode_FromWideChar(lc->_W_ ## ATTR, -1)
 #else

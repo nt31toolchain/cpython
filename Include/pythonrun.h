@@ -26,8 +26,7 @@ PyAPI_DATA(int) (*PyOS_InputHook)(void);
    to an 8k margin. */
 #define PYOS_STACK_MARGIN 2048
 
-/* Windows NT 3.x: the C runtime cannot restore the guard page (_resetstkoflw) */
-#if defined(WIN32) && !defined(MS_WIN64) && !defined(_M_ARM) && defined(_MSC_VER) && _MSC_VER >= 1300 && !defined(MS_WINDOWS_NT3)
+#if defined(WIN32) && !defined(MS_WIN64) && !defined(_M_ARM) && defined(_MSC_VER) && _MSC_VER >= 1300
 /* Enable stack checking under Microsoft C */
 // When changing the platforms, ensure PyOS_CheckStack() docs are still correct
 #define USE_STACKCHECK
